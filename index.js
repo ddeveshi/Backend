@@ -8,6 +8,10 @@ app.listen(port, () => {
   console.log(`Server is running on http://localhost:${port}`);
 });
 
+// Logger middleware
+const morgan = require("morgan");
+app.use(morgan("dev"));
+
 // Linking list of tuitions
 let myLesson = require("./list/lessons.js");
 console.log(myLesson);
