@@ -47,6 +47,41 @@ app.get("/collections/lessons", async (req, res) => {
   }
 });
 
+app.post("/collections/orders", async (req, res) => {
+  const { name, phone, lessonIDs, spaces } = req.body || {};
+  const validItems =
+    Array.isArray(lessonIDs) &&
+    Array.isArray(spaces) &&
+    lessonIDs.length > 0 &&
+    lessonIDs.length === spaces.length &&
+    lessonIDs.every((id) => Number.isInteger(id) && id > 0) &&
+    spaces.every((quantity) => Number.isInteger(quantity) && quantity > 0);
+
+  if (
+    typeof name !== "string" ||
+    !name.trim() ||
+    typeof phone !== "string" ||
+    !phone.trim() ||
+    !validItems
+  ) {
+    return res.status(400).json({ error: "Invalid order details." });
+  }
+
+  try {
+    const ordersCollection = db.collection("Orders");
+    const result = await ordersCollection.insertOne({
+      name: name.trim(),
+      phone: phone.trim(),
+      lessonIDs,
+      spaces,
+    });
+    res.status(201).json({ orderId: result.insertedId });
+  } catch (err) {
+    console.error(err);
+    res.status(500).json({ error: "Error saving the order." });
+  }
+});
+
 // Linking Images
 var path = require("path");
 var publicPath = path.resolve(__dirname, "images");
